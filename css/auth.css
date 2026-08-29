@@ -1,0 +1,96 @@
+/* =========================================================
+   Auth pages (signup / login) — shares tokens from styles.css
+   ========================================================= */
+.auth-body {
+  background: var(--black);
+  min-height: 100vh;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+
+.auth-logo-link {
+  display: inline-block;
+  margin-bottom: 32px;
+}
+.auth-logo {
+  height: 40px;
+  width: auto;
+  filter: brightness(0) invert(1);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+}
+
+.auth-card h1 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+.auth-sub {
+  font-size: 0.9rem;
+  color: #6b6c70;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.auth-form .form-row { display: flex; flex-direction: column; gap: 6px; }
+.auth-form label { font-size: 0.85rem; font-weight: 600; color: #33343a; }
+.auth-form input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 13px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid rgba(13,13,13,0.15);
+  background: var(--white);
+  color: var(--black);
+  width: 100%;
+  min-height: 48px;
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(227,30,36,0.1);
+}
+.auth-form button { margin-top: 8px; min-height: 48px; }
+.auth-form button:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.auth-switch {
+  text-align: center;
+  font-size: 0.88rem;
+  color: #6b6c70;
+  margin-top: 20px;
+}
+.auth-switch a { color: var(--red); font-weight: 700; }
+
+.auth-alert {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+.auth-alert-error {
+  background: rgba(227,30,36,0.08);
+  color: var(--red-dark);
+  border: 1px solid rgba(227,30,36,0.2);
+}
+.auth-alert-success {
+  background: rgba(46,163,89,0.08);
+  color: #1f7a3d;
+  border: 1px solid rgba(46,163,89,0.25);
+}

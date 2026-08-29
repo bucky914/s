@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finances — Admin — Just Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/finances.css">
+</head>
+<body>
+
+<div class="admin-shell" id="adminShell">
+  <main class="admin-main">
+    <div id="pageLoading" class="admin-loading">Loading finances…</div>
+
+    <div id="pageContent" style="display:none;">
+      <div class="admin-page-header admin-page-header-row">
+        <div>
+          <h1>Finances</h1>
+          <p>How much you've received, spent, and made.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" id="openAddExpense">+ Add Expense</button>
+          <button class="btn btn-primary" id="openRecordPayment">+ Record Payment</button>
+        </div>
+      </div>
+
+      <!-- Today / This Month summary -->
+      <div class="finance-summary-grid">
+        <div class="finance-summary-card">
+          <div class="finance-summary-label">Today</div>
+          <div class="finance-summary-row">
+            <div><span class="finance-summary-num" id="todayRevenue">₹0</span><span class="finance-summary-sub">Revenue</span></div>
+            <div><span class="finance-summary-num finance-num-expense" id="todayExpenses">₹0</span><span class="finance-summary-sub">Expenses</span></div>
+            <div><span class="finance-summary-num finance-num-profit" id="todayProfit">₹0</span><span class="finance-summary-sub">Profit</span></div>
+          </div>
+        </div>
+        <div class="finance-summary-card">
+          <div class="finance-summary-label">This Month</div>
+          <div class="finance-summary-row">
+            <div><span class="finance-summary-num" id="monthRevenue">₹0</span><span class="finance-summary-sub">Revenue</span></div>
+            <div><span class="finance-summary-num finance-num-expense" id="monthExpenses">₹0</span><span class="finance-summary-sub">Expenses</span></div>
+            <div><span class="finance-summary-num finance-num-profit" id="monthProfit">₹0</span><span class="finance-summary-sub">Profit</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date range filter for the lists below -->
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <h2>Filter</h2>
+          <div class="admin-filters" id="rangeFilters">
+            <button class="filter-chip active" data-range="today">Today</button>
+            <button class="filter-chip" data-range="month">This Month</button>
+            <button class="filter-chip" data-range="year">This Year</button>
+            <button class="filter-chip" data-range="custom">Custom</button>
+          </div>
+        </div>
+        <div class="admin-form-section" id="customRangeRow" style="display:none;">
+          <div class="btn-row" style="align-items:flex-end;">
+            <div class="admin-form-row" style="margin-bottom:0;">
+              <label for="customFrom">From</label>
+              <input type="date" id="customFrom">
+            </div>
+            <div class="admin-form-row" style="margin-bottom:0;">
+              <label for="customTo">To</label>
+              <input type="date" id="customTo">
+            </div>
+            <button class="btn btn-primary btn-sm" id="applyCustomRange">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="finance-range-total">
+        <span>Selected range:</span>
+        <strong id="rangeRevenue">₹0 revenue</strong>
+        <strong class="finance-num-expense" id="rangeExpenses">₹0 expenses</strong>
+        <strong class="finance-num-profit" id="rangeProfit">₹0 profit</strong>
+      </div>
+
+      <!-- Payments awaiting admin confirmation (memberships + one-time bookings) -->
+      <div class="admin-panel">
+        <div class="admin-panel-header"><h2>Payments Awaiting Confirmation</h2></div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="pendingPaymentsTable">
+              <thead><tr><th>Customer</th><th>Source</th><th>Amount</th><th>Created</th><th>Actions</th></tr></thead>
+              <tbody id="pendingPaymentsBody"></tbody>
+            </table>
+          </div>
+          <div id="pendingPaymentsEmpty" class="admin-panel-empty" style="display:none;">No payments awaiting confirmation.</div>
+        </div>
+      </div>
+
+      <!-- Revenue: one-time bookings -->
+      <div class="admin-panel">
+        <div class="admin-panel-header"><h2>Revenue — One-Time Bookings</h2></div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="oneTimeRevenueTable">
+              <thead><tr><th>Customer</th><th>Service</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
+              <tbody id="oneTimeRevenueBody"></tbody>
+            </table>
+          </div>
+          <div id="oneTimeRevenueEmpty" class="admin-panel-empty" style="display:none;">No payments recorded for this range.</div>
+        </div>
+      </div>
+
+      <!-- Revenue: maintenance plans -->
+      <div class="admin-panel">
+        <div class="admin-panel-header"><h2>Revenue — Maintenance Plans</h2></div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="maintenanceRevenueTable">
+              <thead><tr><th>Customer</th><th>Plan</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
+              <tbody id="maintenanceRevenueBody"></tbody>
+            </table>
+          </div>
+          <div id="maintenanceRevenueEmpty" class="admin-panel-empty" style="display:none;">No payments recorded for this range.</div>
+        </div>
+      </div>
+
+      <!-- Expenses -->
+      <div class="admin-panel">
+        <div class="admin-panel-header"><h2>Expenses</h2></div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="expensesTable">
+              <thead><tr><th>Category</th><th>Amount</th><th>Date</th><th>Description</th><th></th></tr></thead>
+              <tbody id="expensesBody"></tbody>
+            </table>
+          </div>
+          <div id="expensesEmpty" class="admin-panel-empty" style="display:none;">No expenses recorded for this range.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- CONFIRM PAYMENT MODAL (for an existing pending payment) -->
+<div class="fin-modal-overlay" id="confirmPaymentModalOverlay">
+  <div class="fin-modal">
+    <div class="fin-modal-header">
+      <h3>Confirm Payment</h3>
+      <button class="modal-close" id="confirmPaymentModalClose">&times;</button>
+    </div>
+    <form id="confirmPaymentForm" class="fin-modal-body">
+      <p class="field-hint" id="confirmPaymentSummary"></p>
+      <div class="admin-form-row">
+        <label for="confirmPayMethod">Payment Method <span class="req">*</span></label>
+        <div class="custom-select" id="confirmPayMethodCustom" data-target="confirmPayMethod">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value is-placeholder" data-placeholder="Select method">Select method</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1">
+            <li role="option" data-value="cash">Cash</li>
+            <li role="option" data-value="upi">UPI</li>
+            <li role="option" data-value="card">Card</li>
+            <li role="option" data-value="bank_transfer">Bank Transfer</li>
+            <li role="option" data-value="other">Other</li>
+          </ul>
+        </div>
+        <select id="confirmPayMethod" required class="visually-hidden-select" tabindex="-1" aria-hidden="true">
+          <option value="" disabled selected>Select method</option>
+          <option value="cash">Cash</option>
+          <option value="upi">UPI</option>
+          <option value="card">Card</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="admin-form-row">
+        <label for="confirmPayDate">Payment Date <span class="req">*</span></label>
+        <div class="date-field" id="confirmPayDateField">
+          <button type="button" class="date-field-trigger" id="confirmPayDateTrigger" aria-haspopup="dialog" aria-expanded="false">
+            <svg viewBox="0 0 20 20" fill="none" width="17" height="17"><rect x="3" y="4.5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="date-field-value is-placeholder" id="confirmPayDateValueText">Select a date</span>
+          </button>
+          <div class="custom-date-picker" id="confirmPayDatePicker">
+            <div class="custom-date-picker-header">
+              <button type="button" class="custom-date-nav" id="confirmPayDatePrev" aria-label="Previous month">‹</button>
+              <span id="confirmPayDateMonthLabel"></span>
+              <button type="button" class="custom-date-nav" id="confirmPayDateNext" aria-label="Next month">›</button>
+            </div>
+            <div class="custom-date-grid-labels">
+              <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+            </div>
+            <div class="custom-date-grid" id="confirmPayDateGrid"></div>
+          </div>
+        </div>
+        <input type="hidden" id="confirmPayDate" required>
+      </div>
+      <button type="submit" class="btn btn-success" id="confirmPaySubmit">Confirm Payment</button>
+    </form>
+  </div>
+</div>
+
+<!-- RECORD PAYMENT MODAL -->
+<div class="fin-modal-overlay" id="paymentModalOverlay">
+  <div class="fin-modal">
+    <div class="fin-modal-header">
+      <h3>Record Payment</h3>
+      <button class="modal-close" id="paymentModalClose">&times;</button>
+    </div>
+    <form id="paymentForm" class="fin-modal-body">
+      <div class="admin-form-row">
+        <label for="paySource">What is this payment for? <span class="req">*</span></label>
+        <div class="custom-select" id="paySourceCustom" data-target="paySource">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value is-placeholder" data-placeholder="Select type">Select type</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1">
+            <li role="option" data-value="one_time">One-time booking</li>
+            <li role="option" data-value="subscription">Maintenance plan</li>
+          </ul>
+        </div>
+        <select id="paySource" required class="visually-hidden-select" tabindex="-1" aria-hidden="true">
+          <option value="" disabled selected>Select type</option>
+          <option value="one_time">One-time booking</option>
+          <option value="subscription">Maintenance plan</option>
+        </select>
+      </div>
+
+      <div class="admin-form-row" id="payOneTimeRow" style="display:none;">
+        <label for="payOneTimeBooking">Select booking <span class="req">*</span></label>
+        <div class="custom-select" id="payOneTimeBookingCustom" data-target="payOneTimeBooking">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value is-placeholder" data-placeholder="Select booking">Select booking</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1"></ul>
+        </div>
+        <select id="payOneTimeBooking" class="visually-hidden-select" tabindex="-1" aria-hidden="true"></select>
+      </div>
+
+      <div class="admin-form-row" id="paySubscriptionRow" style="display:none;">
+        <label for="paySubscription">Select customer / plan <span class="req">*</span></label>
+        <div class="custom-select" id="paySubscriptionCustom" data-target="paySubscription">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value is-placeholder" data-placeholder="Select customer">Select customer</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1"></ul>
+        </div>
+        <select id="paySubscription" class="visually-hidden-select" tabindex="-1" aria-hidden="true"></select>
+      </div>
+
+      <div class="admin-form-row">
+        <label for="payAmount">Amount (₹) <span class="req">*</span></label>
+        <input type="number" id="payAmount" min="1" step="1" required>
+        <p id="payAmountHint" class="field-hint"></p>
+      </div>
+      <div class="admin-form-row">
+        <label for="payMethod">Payment Method <span class="req">*</span></label>
+        <div class="custom-select" id="payMethodCustom" data-target="payMethod">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value is-placeholder" data-placeholder="Select method">Select method</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1">
+            <li role="option" data-value="cash">Cash</li>
+            <li role="option" data-value="upi">UPI</li>
+            <li role="option" data-value="card">Card</li>
+            <li role="option" data-value="bank_transfer">Bank Transfer</li>
+            <li role="option" data-value="other">Other</li>
+          </ul>
+        </div>
+        <select id="payMethod" required class="visually-hidden-select" tabindex="-1" aria-hidden="true">
+          <option value="" disabled selected>Select method</option>
+          <option value="cash">Cash</option>
+          <option value="upi">UPI</option>
+          <option value="card">Card</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="admin-form-row">
+        <label for="payStatus">Payment Status <span class="req">*</span></label>
+        <div class="custom-select" id="payStatusCustom" data-target="payStatus">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value">Paid (full amount)</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1">
+            <li role="option" data-value="paid" aria-selected="true">Paid (full amount)</li>
+            <li role="option" data-value="partially_paid">Partially Paid</li>
+          </ul>
+        </div>
+        <select id="payStatus" required class="visually-hidden-select" tabindex="-1" aria-hidden="true">
+          <option value="paid" selected>Paid (full amount)</option>
+          <option value="partially_paid">Partially Paid</option>
+        </select>
+      </div>
+      <div class="admin-form-row">
+        <label for="payDateTrigger">Payment Date <span class="req">*</span></label>
+        <div class="date-field" id="payDateField">
+          <button type="button" class="date-field-trigger" id="payDateTrigger" aria-haspopup="dialog" aria-expanded="false">
+            <svg viewBox="0 0 20 20" fill="none" width="17" height="17"><rect x="3" y="4.5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="date-field-value is-placeholder" id="payDateValueText">Select a date</span>
+          </button>
+          <div class="custom-date-picker" id="payDatePicker">
+            <div class="custom-date-picker-header">
+              <button type="button" class="custom-date-nav" id="payDatePrev" aria-label="Previous month">‹</button>
+              <span id="payDateMonthLabel"></span>
+              <button type="button" class="custom-date-nav" id="payDateNext" aria-label="Next month">›</button>
+            </div>
+            <div class="custom-date-grid-labels">
+              <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+            </div>
+            <div class="custom-date-grid" id="payDateGrid"></div>
+          </div>
+        </div>
+        <input type="hidden" id="payDate" required>
+      </div>
+      <div class="admin-form-row">
+        <label for="payNotes">Notes</label>
+        <textarea id="payNotes" rows="2"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" id="paySubmit">Record Payment</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD EXPENSE MODAL -->
+<div class="fin-modal-overlay" id="expenseModalOverlay">
+  <div class="fin-modal">
+    <div class="fin-modal-header">
+      <h3>Add Expense</h3>
+      <button class="modal-close" id="expenseModalClose">&times;</button>
+    </div>
+    <form id="expenseForm" class="fin-modal-body">
+      <div class="admin-form-row">
+        <label for="expCategory">Category <span class="req">*</span></label>
+        <div class="custom-select" id="expCategoryCustom" data-target="expCategory">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value is-placeholder" data-placeholder="Select category">Select category</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1">
+            <li role="option" data-value="fuel">Fuel</li>
+            <li role="option" data-value="cleaning_products">Cleaning Products</li>
+            <li role="option" data-value="equipment">Equipment</li>
+            <li role="option" data-value="equipment_repair">Equipment Repair</li>
+            <li role="option" data-value="marketing">Marketing</li>
+            <li role="option" data-value="staff">Staff</li>
+            <li role="option" data-value="other">Other</li>
+          </ul>
+        </div>
+        <select id="expCategory" required class="visually-hidden-select" tabindex="-1" aria-hidden="true">
+          <option value="" disabled selected>Select category</option>
+          <option value="fuel">Fuel</option>
+          <option value="cleaning_products">Cleaning Products</option>
+          <option value="equipment">Equipment</option>
+          <option value="equipment_repair">Equipment Repair</option>
+          <option value="marketing">Marketing</option>
+          <option value="staff">Staff</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="admin-form-row">
+        <label for="expAmount">Amount (₹) <span class="req">*</span></label>
+        <input type="number" id="expAmount" min="1" step="1" required>
+      </div>
+      <div class="admin-form-row">
+        <label for="expDate">Date <span class="req">*</span></label>
+        <div class="date-field-locked" id="expDateLocked">
+          <svg viewBox="0 0 20 20" fill="none" width="17" height="17"><rect x="3" y="4.5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span id="expDateLockedText">—</span>
+          <span class="date-field-locked-note">Today</span>
+        </div>
+        <input type="hidden" id="expDate" required>
+      </div>
+      <div class="admin-form-row">
+        <label for="expDescription">Description</label>
+        <textarea id="expDescription" rows="2"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" id="expSubmit">Add Expense</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/finances-admin.js"></script>
+</body>
+</html>

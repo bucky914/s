@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — Just Detail</title>
+<meta name="description" content="Log in to your Just Detail account to view your care plan and bookings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-page">
+  <a href="index.html" class="auth-logo-link">
+    <img src="https://res.cloudinary.com/dmr5kchzw/image/upload/v1786601006/Add_red_elements_to_image_202608131118_1_rtqnyl.png" alt="Just Detail" class="auth-logo">
+  </a>
+
+  <div class="auth-card">
+    <h1>Welcome back</h1>
+    <p class="auth-sub">Log in to view your care plan and upcoming visits.</p>
+
+    <div id="authAlert" class="auth-alert" style="display:none;"></div>
+
+    <form id="loginForm" class="auth-form" novalidate>
+      <div class="form-row">
+        <label for="liEmail">Email</label>
+        <input type="email" id="liEmail" required placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-row">
+        <label for="liPassword">Password</label>
+        <input type="password" id="liPassword" required placeholder="Your password" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginSubmit">Log in</button>
+    </form>
+
+    <p class="auth-switch">Don't have an account? <a href="index.html#plans">View care plans</a></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // If already logged in, skip the form and go straight to the dashboard.
+  (async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) window.location.href = 'dashboard.html';
+    } catch (err) {
+      console.error('Startup check failed:', err);
+    }
+  })();
+
+  function showAlert(message, type) {
+    const el = document.getElementById('authAlert');
+    el.textContent = message;
+    el.className = 'auth-alert auth-alert-' + type;
+    el.style.display = 'block';
+  }
+
+  // Same last-resort safety net as signup.html — see the comment there.
+  function resetLoginButtonOnUnexpectedError() {
+    const submitBtn = document.getElementById('loginSubmit');
+    if (submitBtn && submitBtn.disabled) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Log in';
+      showAlert('Something unexpected went wrong. Please try again.', 'error');
+    }
+  }
+  window.addEventListener('error', resetLoginButtonOnUnexpectedError);
+  window.addEventListener('unhandledrejection', resetLoginButtonOnUnexpectedError);
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('loginSubmit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in…';
+
+    const email = document.getElementById('liEmail').value.trim();
+    const password = document.getElementById('liPassword').value;
+
+    let result;
+    try {
+      result = await signInClient({ email, password });
+    } catch (err) {
+      console.error('Login failed:', err);
+      showAlert(err.message || 'Could not log in. Please try again.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Log in';
+      return;
+    }
+
+    const { user, error } = result;
+
+    if (error) {
+      showAlert(error.message || 'Could not log in. Check your details and try again.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Log in';
+      return;
+    }
+
+    window.location.href = 'dashboard.html';
+  });
+</script>
+</body>
+</html>

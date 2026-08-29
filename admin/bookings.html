@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Admin — Just Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+<!-- Reuses the existing modal styles (.fin-modal, .fin-modal-overlay, etc.)
+     from finances.css for the reschedule modal added below, instead of
+     duplicating those styles here. -->
+<link rel="stylesheet" href="css/finances.css">
+</head>
+<body>
+
+<div class="admin-shell" id="adminShell">
+  <main class="admin-main">
+    <div id="pageLoading" class="admin-loading">Loading bookings…</div>
+
+    <div id="pageContent" style="display:none;">
+      <div class="admin-page-header">
+        <h1>Bookings</h1>
+        <p>Maintenance visit requests and one-time service bookings.</p>
+      </div>
+
+      <div class="admin-filters" id="bookingTypeTabs" style="margin-bottom:20px;">
+        <button class="filter-chip active" data-tab="maintenance">Maintenance Bookings</button>
+        <button class="filter-chip" data-tab="onetime">One-Time Bookings</button>
+      </div>
+
+      <!-- MAINTENANCE BOOKINGS VIEW -->
+      <div id="maintenanceView">
+        <div class="admin-panel">
+          <div class="admin-panel-header admin-panel-header-stack">
+            <div class="admin-panel-header-top">
+              <h2>Maintenance Bookings</h2>
+            </div>
+            <div class="admin-panel-header-filters">
+              <div class="admin-filters" id="statusFilters">
+                <button class="filter-chip active" data-filter="today">Today</button>
+                <button class="filter-chip" data-filter="upcoming">Upcoming</button>
+                <button class="filter-chip" data-filter="completed">Completed</button>
+                <button class="filter-chip" data-filter="cancelled">Cancelled</button>
+              </div>
+            </div>
+          </div>
+          <div class="admin-panel-body">
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="bookingsTable">
+                <thead>
+                  <tr><th>Customer</th><th>Vehicle</th><th>Date</th><th>Time</th><th>Service</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="bookingsBody"></tbody>
+              </table>
+            </div>
+            <div id="bookingsEmpty" class="admin-panel-empty" style="display:none;">No bookings in this view.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONE-TIME BOOKINGS VIEW -->
+      <div id="onetimeView" style="display:none;">
+        <div class="admin-panel">
+          <div class="admin-panel-header admin-panel-header-stack">
+            <div class="admin-panel-header-top">
+              <h2>One-Time Service Bookings</h2>
+              <input type="text" class="search-input" id="onetimeSearch" placeholder="Search by name or phone…">
+            </div>
+            <div class="admin-panel-header-filters">
+              <div class="admin-filters" id="onetimePaymentFilters">
+                <button class="filter-chip active" data-payfilter="all">All</button>
+                <button class="filter-chip" data-payfilter="unpaid">Pending</button>
+                <button class="filter-chip" data-payfilter="paid">Paid</button>
+              </div>
+            </div>
+          </div>
+          <div class="admin-panel-body">
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="onetimeTable">
+                <thead>
+                  <tr><th>Customer</th><th>Phone</th><th>Service</th><th>Vehicle</th><th>Amount</th><th>Requested Date</th><th>Payment</th></tr>
+                </thead>
+                <tbody id="onetimeBody"></tbody>
+              </table>
+            </div>
+            <div id="onetimeEmpty" class="admin-panel-empty" style="display:none;">No one-time bookings match this filter.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- RESCHEDULE MAINTENANCE BOOKING MODAL -->
+<div class="fin-modal-overlay" id="rescheduleModalOverlay">
+  <div class="fin-modal">
+    <div class="fin-modal-header">
+      <h3>Reschedule Visit</h3>
+      <button type="button" class="modal-close" id="rescheduleModalClose" aria-label="Close">&times;</button>
+    </div>
+    <form id="rescheduleForm" class="fin-modal-body">
+      <input type="hidden" id="rescheduleBookingId">
+      <div class="admin-form-row">
+        <label for="rescheduleDateTrigger">New Confirmed Date <span class="req">*</span></label>
+        <div class="date-field" id="rescheduleDateField">
+          <button type="button" class="date-field-trigger" id="rescheduleDateTrigger" aria-haspopup="dialog" aria-expanded="false">
+            <svg viewBox="0 0 20 20" fill="none" width="17" height="17"><rect x="3" y="4.5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="date-field-value is-placeholder" id="rescheduleDateValueText">Select a date</span>
+          </button>
+          <div class="custom-date-picker" id="rescheduleDatePicker">
+            <div class="custom-date-picker-header">
+              <button type="button" class="custom-date-nav" id="rescheduleDatePrev" aria-label="Previous month">‹</button>
+              <span id="rescheduleDateMonthLabel"></span>
+              <button type="button" class="custom-date-nav" id="rescheduleDateNext" aria-label="Next month">›</button>
+            </div>
+            <div class="custom-date-grid-labels">
+              <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+            </div>
+            <div class="custom-date-grid" id="rescheduleDateGrid"></div>
+          </div>
+        </div>
+        <input type="hidden" id="rescheduleDate" required>
+      </div>
+      <div class="admin-form-row">
+        <label for="rescheduleTime">New Time <span class="req">*</span></label>
+        <input type="text" id="rescheduleTime" placeholder="e.g. 10:00 AM" required>
+      </div>
+      <div class="admin-form-row">
+        <label for="rescheduleNote">Note to customer</label>
+        <textarea id="rescheduleNote" rows="2"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" id="rescheduleSubmit">Save New Date</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/bookings-admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — Admin — Just Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell" id="adminShell">
+  <main class="admin-main">
+    <div id="pageLoading" class="admin-loading">Loading settings…</div>
+
+    <div id="pageContent" style="display:none;">
+      <div class="admin-page-header">
+        <h1>Settings</h1>
+        <p>Business details and your admin account.</p>
+      </div>
+
+      <div class="detail-grid">
+        <div class="admin-panel">
+          <div class="admin-panel-header"><h2>Business Information</h2></div>
+          <form class="admin-form-section" id="businessForm">
+            <div class="admin-form-row">
+              <label for="bizName">Business Name</label>
+              <input type="text" id="bizName" placeholder="Just Detail — Automotive Aesthetics">
+            </div>
+            <div class="admin-form-row">
+              <label for="bizPhone">Phone</label>
+              <input type="tel" id="bizPhone" placeholder="+91 00000 00000">
+            </div>
+            <div class="admin-form-row">
+              <label for="bizWhatsapp">WhatsApp Number</label>
+              <input type="tel" id="bizWhatsapp" placeholder="919629885790">
+            </div>
+            <div class="admin-form-row">
+              <label for="bizArea">Service Area</label>
+              <input type="text" id="bizArea" placeholder="Chennai and surrounding areas">
+            </div>
+            <div class="admin-form-row">
+              <label for="bizHours">Working Hours</label>
+              <input type="text" id="bizHours" placeholder="Tue–Sun, 8:00 AM – 6:00 PM">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Business Info</button>
+            <p style="font-size:0.78rem; color:#8a8a8d; margin-top:10px;">
+              Note: these details are saved for your reference here. To update what appears on the live website (like the WhatsApp number in the booking form), the site's config file also needs updating.
+            </p>
+          </form>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header"><h2>Admin Account</h2></div>
+          <div class="admin-form-section">
+            <div class="detail-row"><span>Email</span><span id="adminEmail">—</span></div>
+            <div class="detail-row"><span>Account created</span><span id="adminCreated">—</span></div>
+            <button class="btn btn-outline" id="settingsLogout" style="margin-top:18px;">Log Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/settings-admin.js"></script>
+</body>
+</html>

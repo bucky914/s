@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — Just Detail</title>
+<meta name="description" content="Create your Just Detail account to enroll in a maintenance care plan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-page">
+  <a href="index.html" class="auth-logo-link">
+    <img src="https://res.cloudinary.com/dmr5kchzw/image/upload/v1786601006/Add_red_elements_to_image_202608131118_1_rtqnyl.png" alt="Just Detail" class="auth-logo">
+  </a>
+
+  <div class="auth-card">
+    <h1>Create your account</h1>
+    <p class="auth-sub">Set up your account to enroll in a care plan and track your visits.</p>
+
+    <div id="authAlert" class="auth-alert" style="display:none;"></div>
+
+    <form id="signupForm" class="auth-form" novalidate>
+      <div class="form-row">
+        <label for="suName">Full name</label>
+        <input type="text" id="suName" required placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="form-row">
+        <label for="suPhone">Mobile number</label>
+        <input type="tel" id="suPhone" required placeholder="10-digit number" pattern="[0-9]{10}" maxlength="10" inputmode="numeric" autocomplete="tel">
+      </div>
+      <div class="form-row">
+        <label for="suEmail">Email</label>
+        <input type="email" id="suEmail" required placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-row">
+        <label for="suPassword">Password</label>
+        <input type="password" id="suPassword" required placeholder="At least 6 characters" minlength="6" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="signupSubmit">Create account</button>
+    </form>
+
+    <p class="auth-switch">Already have an account? <a href="login.html">Log in</a></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // If already logged in, skip signup entirely — go straight to the
+  // dashboard, carrying along the plan they were trying to enroll in.
+  // Wrapped in try/catch: getCurrentUser() itself already never throws
+  // (see js/auth.js), but this guards against any other startup issue
+  // silently blocking the page from becoming usable.
+  (async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        const planId = getPlanIdFromUrl();
+        window.location.href = planId ? `dashboard.html?enroll=${planId}` : 'dashboard.html';
+      }
+    } catch (err) {
+      console.error('Startup check failed:', err);
+    }
+  })();
+
+  function getPlanIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('plan');
+  }
+
+  function showAlert(message, type) {
+    const el = document.getElementById('authAlert');
+    el.textContent = message;
+    el.className = 'auth-alert auth-alert-' + type;
+    el.style.display = 'block';
+  }
+
+  // Last-resort safety net: if anything throws an error this script
+  // didn't anticipate (or a promise rejects without being caught
+  // anywhere), make sure the submit button never stays stuck on its
+  // "in progress" text with no explanation — reset it and show
+  // something visible instead of leaving the person staring at a
+  // frozen page.
+  function resetSignupButtonOnUnexpectedError() {
+    const submitBtn = document.getElementById('signupSubmit');
+    if (submitBtn && submitBtn.disabled) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create account';
+      showAlert('Something unexpected went wrong. Please try again.', 'error');
+    }
+  }
+  window.addEventListener('error', resetSignupButtonOnUnexpectedError);
+  window.addEventListener('unhandledrejection', resetSignupButtonOnUnexpectedError);
+
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('signupSubmit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating account…';
+
+    const fullName = document.getElementById('suName').value.trim();
+    const phone = document.getElementById('suPhone').value.trim();
+    const email = document.getElementById('suEmail').value.trim();
+    const password = document.getElementById('suPassword').value;
+
+    // Wrapped in try/catch: if signUpClient() itself throws (e.g. the
+    // Supabase client failed to initialize — see assertSupabaseClientReady()
+    // in js/auth.js), this shows a real error message and resets the
+    // button instead of leaving it stuck on "Creating account…" forever
+    // with nothing visible to explain why.
+    let result;
+    try {
+      result = await signUpClient({ fullName, phone, email, password });
+    } catch (err) {
+      console.error('Signup failed:', err);
+      showAlert(err.message || 'Something went wrong creating your account. Please try again.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create account';
+      return;
+    }
+
+    const { user, error, needsConfirmation } = result;
+
+    if (error) {
+      showAlert(error.message || 'Something went wrong creating your account.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create account';
+      return;
+    }
+
+    if (needsConfirmation) {
+      showAlert('Check your email to confirm your account, then log in.', 'success');
+      submitBtn.textContent = 'Check your email';
+      return;
+    }
+
+    // Success — carry the plan selection into the dashboard's enrollment flow
+    const planId = getPlanIdFromUrl();
+    if (planId) {
+      window.location.href = `dashboard.html?enroll=${planId}`;
+    } else {
+      window.location.href = 'dashboard.html';
+    }
+  });
+</script>
+</body>
+</html>

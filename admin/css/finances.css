@@ -1,0 +1,107 @@
+/* =========================================================
+   Finances page — extends admin.css
+   ========================================================= */
+.admin-page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.finance-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (min-width: 700px) {
+  .finance-summary-grid { grid-template-columns: 1fr 1fr; }
+}
+.finance-summary-card {
+  background: var(--black);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  color: var(--white);
+}
+.finance-summary-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9c9ca0;
+  margin-bottom: 16px;
+}
+.finance-summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.finance-summary-num {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+.finance-summary-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: #9c9ca0;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.finance-num-expense { color: #ff7a7e; }
+.finance-num-profit { color: #5ee08a; }
+
+.finance-range-total {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #55575c;
+  padding: 14px 4px;
+  margin-bottom: 20px;
+}
+.finance-range-total strong { font-family: var(--font-display); font-size: 1rem; color: var(--black); }
+
+/* Payment modals */
+.fin-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(13,13,13,0.55);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.25s var(--ease), visibility 0.25s var(--ease);
+}
+.fin-modal-overlay.open { opacity: 1; visibility: visible; }
+.fin-modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 440px;
+  max-height: 88vh;
+  display: flex; flex-direction: column;
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.3s var(--ease);
+}
+.fin-modal-overlay.open .fin-modal { transform: translateY(0) scale(1); }
+.fin-modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 22px; border-bottom: 1px solid rgba(13,13,13,0.08);
+}
+.fin-modal-header h3 { font-size: 1.1rem; }
+.modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #8a8a8d; }
+.fin-modal-body { padding: 20px 22px; overflow-y: auto; }
+.fin-modal-body button[type="submit"] { width: 100%; margin-top: 6px; }
+
+.expense-delete-btn {
+  background: none; border: none; color: var(--red);
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  color: #8a8a8d;
+  margin-top: 4px;
+}

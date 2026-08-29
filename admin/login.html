@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — Just Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--black); }
+  .login-card {
+    width: 100%; max-width: 380px; background: var(--white);
+    border-radius: var(--radius-lg); padding: 32px 28px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  }
+  .login-logo { height: 34px; margin-bottom: 24px; }
+  .login-card h1 { font-size: 1.3rem; margin-bottom: 6px; }
+  .login-card p.sub { color: #6b6c70; font-size: 0.88rem; margin-bottom: 22px; }
+  .admin-alert {
+    padding: 11px 13px; border-radius: var(--radius-sm); font-size: 0.83rem;
+    font-weight: 600; margin-bottom: 16px; background: rgba(227,30,36,0.08);
+    color: var(--red-dark); border: 1px solid rgba(227,30,36,0.2); display: none;
+  }
+  .login-form button { width: 100%; margin-top: 6px; padding: 11px; }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <img src="https://res.cloudinary.com/dmr5kchzw/image/upload/v1786601006/Add_red_elements_to_image_202608131118_1_rtqnyl.png" alt="Just Detail" class="login-logo">
+  <h1>Admin Login</h1>
+  <p class="sub">Sign in to manage customers and bookings.</p>
+
+  <div id="loginAlert" class="admin-alert"></div>
+
+  <form id="adminLoginForm" class="login-form">
+    <div class="admin-form-row">
+      <label for="aEmail">Email</label>
+      <input type="email" id="aEmail" required autocomplete="email">
+    </div>
+    <div class="admin-form-row">
+      <label for="aPassword">Password</label>
+      <input type="password" id="aPassword" required autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn btn-primary" id="aSubmit">Log In</button>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script>
+  function showAlert(msg) {
+    const el = document.getElementById('loginAlert');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  // If already a logged-in admin, skip straight to dashboard
+  (async () => {
+    const { data } = await supabaseClient.auth.getUser();
+    if (data && data.user) {
+      const { data: adminRow } = await supabaseClient
+        .from('admin_users').select('id').eq('id', data.user.id).maybeSingle();
+      if (adminRow) window.location.href = 'index.html';
+    }
+  })();
+
+  document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('aSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Logging in…';
+
+    const email = document.getElementById('aEmail').value.trim();
+    const password = document.getElementById('aPassword').value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showAlert(error.message || 'Could not log in.');
+      btn.disabled = false;
+      btn.textContent = 'Log In';
+      return;
+    }
+
+    // Confirm this account is actually an admin before letting them in
+    const { data: adminRow } = await supabaseClient
+      .from('admin_users').select('id').eq('id', data.user.id).maybeSingle();
+
+    if (!adminRow) {
+      showAlert('This account does not have admin access.');
+      await supabaseClient.auth.signOut();
+      btn.disabled = false;
+      btn.textContent = 'Log In';
+      return;
+    }
+
+    window.location.href = 'index.html';
+  });
+</script>
+</body>
+</html>

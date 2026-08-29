@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Just Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dash-body">
+
+<header class="dash-header">
+  <div class="container dash-header-inner">
+    <a href="index.html" class="brand">
+      <img src="https://res.cloudinary.com/dmr5kchzw/image/upload/v1786601006/Add_red_elements_to_image_202608131118_1_rtqnyl.png" alt="Just Detail" class="brand-logo">
+    </a>
+    <div class="dash-header-actions">
+      <span class="dash-user-name" id="dashUserName"></span>
+      <button class="btn btn-ghost" id="logoutBtn">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main class="dash-main">
+  <div class="container">
+
+    <div id="dashLoading" class="dash-loading">Loading your account…</div>
+
+    <!-- ENROLLMENT FLOW (shown if ?enroll=planId in URL, or "Add a vehicle" clicked) -->
+    <div id="enrollPanel" class="dash-panel" style="display:none;">
+      <div class="dash-panel-header">
+        <h2 id="enrollPlanTitle">Enroll in a care plan</h2>
+        <p id="enrollPlanSub"></p>
+      </div>
+
+      <form id="enrollForm" class="dash-form">
+        <div class="form-row">
+          <label for="enVehicleModel">Vehicle model <span class="req">*</span></label>
+          <input type="text" id="enVehicleModel" required placeholder="e.g. Swift, Creta, City">
+        </div>
+        <div class="form-row" id="enFrequencyRow">
+          <label for="enFrequency">Visit frequency <span class="req">*</span></label>
+          <div class="custom-select" id="enFrequencyCustom" data-target="enFrequency">
+            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="custom-select-value is-placeholder" data-placeholder="Select frequency">Select frequency</span>
+            </button>
+            <ul class="custom-select-list" role="listbox" tabindex="-1"></ul>
+          </div>
+          <select id="enFrequency" required class="visually-hidden-select" tabindex="-1" aria-hidden="true"></select>
+        </div>
+        <div class="form-row">
+          <label for="enAddress">Service address <span class="req">*</span></label>
+          <input type="text" id="enAddress" required placeholder="Where we'll come to detail your car">
+        </div>
+
+        <div class="form-row">
+          <label for="enDeepCleanDateTrigger">Deep Clean / first service date <span class="req">*</span></label>
+          <p class="field-hint">This is your first appointment. We'll automatically work out your future maintenance dates from your chosen frequency — no need to pick every date yourself.</p>
+          <div class="date-field" id="enDeepCleanDateField">
+            <button type="button" class="date-field-trigger" id="enDeepCleanDateTrigger" aria-haspopup="dialog" aria-expanded="false">
+              <svg viewBox="0 0 20 20" fill="none" width="17" height="17"><rect x="3" y="4.5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span class="date-field-value is-placeholder" id="enDeepCleanDateValueText">Select a date</span>
+            </button>
+            <div class="custom-date-picker" id="enDeepCleanDatePicker">
+              <div class="custom-date-picker-header">
+                <button type="button" class="custom-date-nav" id="enDeepCleanDatePrev" aria-label="Previous month">‹</button>
+                <span id="enDeepCleanDateMonthLabel"></span>
+                <button type="button" class="custom-date-nav" id="enDeepCleanDateNext" aria-label="Next month">›</button>
+              </div>
+              <div class="custom-date-grid-labels">
+                <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+              </div>
+              <div class="custom-date-grid" id="enDeepCleanDateGrid"></div>
+            </div>
+          </div>
+          <input type="hidden" id="enDeepCleanDate" required>
+        </div>
+        <div class="form-row">
+          <label for="enDeepCleanTime">Deep Clean / first service time <span class="req">*</span></label>
+          <div class="custom-select" id="enDeepCleanTimeCustom" data-target="enDeepCleanTime">
+            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="custom-select-value is-placeholder" data-placeholder="Select a time">Select a time</span>
+            </button>
+            <ul class="custom-select-list" role="listbox" tabindex="-1"></ul>
+          </div>
+          <select id="enDeepCleanTime" required class="visually-hidden-select" tabindex="-1" aria-hidden="true"></select>
+        </div>
+
+        <div class="dash-form-actions">
+          <button type="button" class="btn btn-ghost" id="enrollCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="enrollSubmit">Activate Membership</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashContent" style="display:none;">
+      <div class="dash-welcome">
+        <h1>Welcome back<span id="dashWelcomeName"></span></h1>
+        <p>Here's what's happening with your vehicles.</p>
+      </div>
+
+      <div id="subscriptionsList" class="subs-grid"></div>
+
+      <div class="dash-add-vehicle">
+        <a href="index.html#plans" class="btn btn-ghost">+ Enroll another vehicle</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- BOOK A VISIT MODAL -->
+<div class="visit-modal-overlay" id="visitModalOverlay">
+  <div class="visit-modal">
+    <div class="visit-modal-header">
+      <h3>Book your next visit</h3>
+      <button class="modal-close" id="visitModalClose" aria-label="Close">&times;</button>
+    </div>
+    <form id="visitForm" class="dash-form">
+      <input type="hidden" id="visitSubscriptionId">
+      <div class="form-row">
+        <label for="visitDateTrigger">Preferred date <span class="req">*</span></label>
+        <div class="date-field" id="visitDateField">
+          <button type="button" class="date-field-trigger" id="visitDateTrigger" aria-haspopup="dialog" aria-expanded="false">
+            <svg viewBox="0 0 20 20" fill="none" width="17" height="17"><rect x="3" y="4.5" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="date-field-value is-placeholder" id="visitDateValueText">Select a date</span>
+          </button>
+          <div class="custom-date-picker" id="visitDatePicker">
+            <div class="custom-date-picker-header">
+              <button type="button" class="custom-date-nav" id="visitDatePrev" aria-label="Previous month">‹</button>
+              <span id="visitDateMonthLabel"></span>
+              <button type="button" class="custom-date-nav" id="visitDateNext" aria-label="Next month">›</button>
+            </div>
+            <div class="custom-date-grid-labels">
+              <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+            </div>
+            <div class="custom-date-grid" id="visitDateGrid"></div>
+          </div>
+        </div>
+        <input type="hidden" id="visitDate" required>
+      </div>
+      <div class="form-row">
+        <label for="visitTime">Preferred time <span class="req">*</span></label>
+        <div class="custom-select" id="visitTimeCustom" data-target="visitTime">
+          <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="custom-select-value is-placeholder" data-placeholder="Select a time">Select a time</span>
+          </button>
+          <ul class="custom-select-list" role="listbox" tabindex="-1">
+            <li role="option" data-value="7:00 AM">7:00 AM</li>
+            <li role="option" data-value="8:00 AM">8:00 AM</li>
+            <li role="option" data-value="9:00 AM">9:00 AM</li>
+            <li role="option" data-value="10:00 AM">10:00 AM</li>
+            <li role="option" data-value="11:00 AM">11:00 AM</li>
+            <li role="option" data-value="12:00 PM">12:00 PM</li>
+            <li role="option" data-value="1:00 PM">1:00 PM</li>
+            <li role="option" data-value="2:00 PM">2:00 PM</li>
+            <li role="option" data-value="3:00 PM">3:00 PM</li>
+            <li role="option" data-value="4:00 PM">4:00 PM</li>
+            <li role="option" data-value="5:00 PM">5:00 PM</li>
+            <li role="option" data-value="6:00 PM">6:00 PM</li>
+            <li role="option" data-value="7:00 PM">7:00 PM</li>
+          </ul>
+        </div>
+        <select id="visitTime" required class="visually-hidden-select" tabindex="-1" aria-hidden="true">
+          <option value="" disabled selected>Select a time</option>
+          <option>7:00 AM</option><option>8:00 AM</option><option>9:00 AM</option><option>10:00 AM</option>
+          <option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option>
+          <option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option>
+          <option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="visitSubmit">Book maintenance visit</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

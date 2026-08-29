@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customers — Admin — Just Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell" id="adminShell">
+  <main class="admin-main">
+    <div id="pageLoading" class="admin-loading">Loading customers…</div>
+
+    <!-- LIST VIEW -->
+    <div id="listView" style="display:none;">
+      <div class="admin-page-header">
+        <h1>Customers</h1>
+        <p>Maintenance plan customers only — one-time bookings don't create accounts.</p>
+      </div>
+
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <h2>All Customers</h2>
+          <input type="text" class="search-input" id="customerSearch" placeholder="Search by name or vehicle…">
+        </div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table admin-table-clickable" id="customersTable">
+              <thead>
+                <tr><th>Name</th><th>Vehicle</th><th>Plan</th><th>Washes Left</th><th>Status</th><th>Payment</th></tr>
+              </thead>
+              <tbody id="customersBody"></tbody>
+            </table>
+          </div>
+          <div id="customersEmpty" class="admin-panel-empty" style="display:none;">No customers yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAIL VIEW -->
+    <div id="detailView" style="display:none;">
+      <a href="#" id="backToList" class="back-link">← Back to Customers</a>
+
+      <div class="admin-page-header">
+        <h1 id="detailName">—</h1>
+      </div>
+
+      <div class="detail-grid">
+        <div class="admin-panel">
+          <div class="admin-panel-header"><h2>Customer Information</h2></div>
+          <div class="admin-form-section">
+            <div class="detail-row"><span>Name</span><span id="dName">—</span></div>
+            <div class="detail-row"><span>Phone</span><span id="dPhone">—</span></div>
+            <div class="detail-row"><span>Email</span><span id="dEmail">—</span></div>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header"><h2>Vehicle</h2></div>
+          <div class="admin-form-section">
+            <div class="detail-row"><span>Model</span><span id="dVehicleModel">—</span></div>
+            <div class="detail-row"><span>Type</span><span id="dVehicleSegment">—</span></div>
+            <div class="detail-row"><span>Service Address</span><span id="dAddress">—</span></div>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header"><h2>Maintenance Plan</h2></div>
+          <div class="admin-form-section">
+            <div class="detail-row"><span>Plan</span><span id="dPlanName">—</span></div>
+            <div class="detail-row"><span>Status</span><span id="dStatus">—</span></div>
+            <div class="detail-row"><span>Payment</span><span id="dPaymentStatus">—</span></div>
+            <div class="detail-row"><span>Start Date</span><span id="dStartDate">—</span></div>
+            <div class="detail-row"><span>Total Washes</span><span id="dTotalWashes">—</span></div>
+            <div class="detail-row"><span>Completed</span><span id="dCompletedWashes">—</span></div>
+            <div class="detail-row"><span>Remaining</span><span id="dRemainingWashes">—</span></div>
+            <div class="btn-row" style="margin-top:16px;" id="dActions"></div>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header"><h2>Booking History</h2></div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="historyTable">
+              <thead><tr><th>Date</th><th>Service</th><th>Status</th></tr></thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+          <div id="historyEmpty" class="admin-panel-empty" style="display:none;">No bookings yet.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/customers-admin.js"></script>
+</body>
+</html>

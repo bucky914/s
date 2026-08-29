@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Admin — Just Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell" id="adminShell">
+  <main class="admin-main">
+    <div id="pageLoading" class="admin-loading">Loading dashboard…</div>
+
+    <div id="pageContent" style="display:none;">
+      <div class="admin-page-header">
+        <h1>Dashboard</h1>
+        <p>Here's what needs your attention today.</p>
+      </div>
+
+      <div class="admin-cards">
+        <div class="admin-card">
+          <div class="admin-card-label">Active Clients</div>
+          <div class="admin-card-num" id="cardActiveClients">—</div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-label">Payments Pending</div>
+          <div class="admin-card-num accent" id="cardPendingRequests">—</div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-label">Today's Bookings</div>
+          <div class="admin-card-num" id="cardTodayBookings">—</div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-label">Upcoming Bookings</div>
+          <div class="admin-card-num" id="cardUpcomingBookings">—</div>
+        </div>
+      </div>
+
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <h2>Membership Payments <span class="admin-panel-header-hint">Awaiting Confirmation</span></h2>
+        </div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="pendingMembershipPaymentsTable">
+              <thead>
+                <tr><th>Customer</th><th>Plan</th><th>Vehicle</th><th>Amount</th><th>Enrolled</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="pendingMembershipPaymentsBody"></tbody>
+            </table>
+          </div>
+          <div id="pendingMembershipPaymentsEmpty" class="admin-panel-empty" style="display:none;">No membership payments awaiting confirmation.</div>
+        </div>
+      </div>
+
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <h2>New One-Time Bookings <span class="admin-panel-header-hint">Unpaid</span></h2>
+        </div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="newOnetimeTable">
+              <thead>
+                <tr><th>Customer</th><th>Phone</th><th>Service</th><th>Vehicle</th><th>Amount</th><th>Submitted</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="newOnetimeBody"></tbody>
+            </table>
+          </div>
+          <div id="newOnetimeEmpty" class="admin-panel-empty" style="display:none;">No new one-time bookings — all caught up.</div>
+        </div>
+      </div>
+
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <h2>Upcoming Maintenance Bookings</h2>
+        </div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="pendingVisitsTable">
+              <thead>
+                <tr><th>Customer</th><th>Vehicle</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="pendingVisitsBody"></tbody>
+            </table>
+          </div>
+          <div id="pendingVisitsEmpty" class="admin-panel-empty" style="display:none;">No upcoming maintenance bookings.</div>
+        </div>
+      </div>
+
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <h2>Today's Bookings</h2>
+        </div>
+        <div class="admin-panel-body">
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="todayBookingsTable">
+              <thead>
+                <tr><th>Time</th><th>Customer</th><th>Vehicle</th><th>Service</th><th>Status</th></tr>
+              </thead>
+              <tbody id="todayBookingsBody"></tbody>
+            </table>
+          </div>
+          <div id="todayBookingsEmpty" class="admin-panel-empty" style="display:none;">No bookings scheduled for today.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/dashboard-admin.js"></script>
+</body>
+</html>
